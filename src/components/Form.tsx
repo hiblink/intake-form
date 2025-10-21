@@ -235,7 +235,7 @@ export default function Form() {
             4. Preferred form of communication
           </label>
           <div className="space-y-2">
-            {["Email", "Phone", "WhatsApp", "Telegram"].map((method) => (
+            {["Email", "Phone", "WhatsApp", "Telegram (Preferred)"].map((method) => (
               <div key={method} className="flex items-center">
                 <input
                   id={`comm-${method}`}
