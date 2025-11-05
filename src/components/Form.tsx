@@ -77,6 +77,7 @@ export default function Form() {
           sensitiveData: "",
           mainGoal: "",
         });
+        window.location.href = "https://calendly.com/abiye-aj8/30min";
       } else {
         alert("❌ There was an error submitting the form. Please try again.");
       }
