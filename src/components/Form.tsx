@@ -60,23 +60,23 @@ export default function Form() {
 
       if (res.ok) {
         // alert("✅ Form submitted successfully! We'll be in touch within 24 hours.");
-        setFormData({
-          clientFirstName: "",
-          clientLastName: "",
-          clientEmail: "",
-          clientPhone: "",
-          services: [],
-          serviceOther: "",
-          duration: "",
-          vaCount: "",
-          communication: [],
-          communicationOther: "",
-          crmTools: "",
-          updateFrequency: "",
-          workingStyle: "",
-          sensitiveData: "",
-          mainGoal: "",
-        });
+        // setFormData({
+        //   clientFirstName: "",
+        //   clientLastName: "",
+        //   clientEmail: "",
+        //   clientPhone: "",
+        //   services: [],
+        //   serviceOther: "",
+        //   duration: "",
+        //   vaCount: "",
+        //   communication: [],
+        //   communicationOther: "",
+        //   crmTools: "",
+        //   updateFrequency: "",
+        //   workingStyle: "",
+        //   sensitiveData: "",
+        //   mainGoal: "",
+        // });
         window.location.href = "https://calendly.com/abiye-aj8/30min";
       } else {
         alert("❌ There was an error submitting the form. Please try again.");
