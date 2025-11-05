@@ -59,7 +59,7 @@ export default function Form() {
       });
 
       if (res.ok) {
-        alert("✅ Form submitted successfully! We'll be in touch within 24 hours.");
+        // alert("✅ Form submitted successfully! We'll be in touch within 24 hours.");
         setFormData({
           clientFirstName: "",
           clientLastName: "",
