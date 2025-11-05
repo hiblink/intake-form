@@ -109,7 +109,7 @@ export default function Form() {
     {/* Step 1 - Client Info */}
 <div>
   <label className={`${labelStyle} text-lg font-semibold`}>
-    1. Your Information
+    1. Contact Details
   </label>
 
   {/* Name fields */}
