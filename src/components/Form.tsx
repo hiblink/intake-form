@@ -393,7 +393,7 @@ export default function Form() {
           disabled={isSubmitting}
           className="w-full bg-orange-500 text-white p-3 rounded-lg font-medium hover:bg-orange-600 transition focus:outline-none focus:ring-2 focus:ring-orange-200 focus:ring-offset-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? "Sending..." : "Submit"}
+          {isSubmitting ? "Sending..." : "Next"}
         </button>
       </form>
     </div>
