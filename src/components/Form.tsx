@@ -1,10 +1,15 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 export default function Form() {
+  const form = useRef<HTMLFormElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
+    clientFirstName: "",
+    clientLastName: "",
+    clientEmail: "",
+    clientPhone: "",
     services: [] as string[],
     serviceOther: "",
     duration: "",
@@ -16,23 +21,25 @@ export default function Form() {
     workingStyle: "",
     sensitiveData: "",
     mainGoal: "",
-    metrics: "",
-    form_type: "VA Service Inquiry",
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value, type } = e.target;
 
     if (type === "checkbox") {
-      const checked = (e.target as HTMLInputElement).checked;
+      const checkbox = e.target as HTMLInputElement;
+      const checked = checkbox.checked;
+
       if (name === "services" || name === "communication") {
         setFormData((prev) => ({
           ...prev,
           [name]: checked
             ? [...prev[name], value]
-            : prev[name].filter((item: string) => item !== value),
+            : prev[name].filter((item) => item !== value),
         }));
       }
     } else {
@@ -45,17 +52,19 @@ export default function Form() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/send-email", {
+      const res = await fetch("/api/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
-      const result = await response.json();
-
-      if (result.success) {
+      if (res.ok) {
         alert("✅ Form submitted successfully! We'll be in touch within 24 hours.");
         setFormData({
+          clientFirstName: "",
+          clientLastName: "",
+          clientEmail: "",
+          clientPhone: "",
           services: [],
           serviceOther: "",
           duration: "",
@@ -67,15 +76,13 @@ export default function Form() {
           workingStyle: "",
           sensitiveData: "",
           mainGoal: "",
-          metrics: "",
-          form_type: "VA Service Inquiry",
         });
       } else {
-        throw new Error(result.error || "Email sending failed");
+        alert("❌ There was an error submitting the form. Please try again.");
       }
-    } catch (error) {
-      console.error(error);
-      alert("❌ There was an error submitting the form. Please try again or contact us directly.");
+    } catch (err) {
+      console.error("Error:", err);
+      alert("❌ There was an error submitting the form. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
@@ -90,23 +97,90 @@ export default function Form() {
   return (
     <div className="w-full bg-white/90 backdrop-blur-sm p-6 md:p-18 rounded-xl shadow-lg">
       <h2 className="text-3xl md:text-4xl font-semibold mb-2 text-gray-800">
-        <span className="text-orange-500">HibLink Tech</span> Kickstart Questionnaire
+        <span className="text-orange-500">HibLink Tech</span> Kickstart
+        Questionnaire
       </h2>
       <p className="text-gray-600 mb-6">
-        Just a few quick questions to power your growth. Fill it out today and we’ll reach out within 24 hours
+        Just a few quick questions to power your growth. Fill it out today and
+        we’ll reach out within 24 hours.
       </p>
 
-      <form onSubmit={sendEmail} className="space-y-6">
-        {/* Services */}
+      <form ref={form} onSubmit={sendEmail} className="space-y-6">
+    {/* Step 1 - Client Info */}
+<div>
+  <label className={`${labelStyle} text-lg font-semibold`}>
+    1. Your Information
+  </label>
+
+  {/* Name fields */}
+  <div className="grid md:grid-cols-2 gap-4 mt-2">
+    <div>
+      <label className={labelStyle}>First Name</label>
+      <input
+        type="text"
+        name="clientFirstName"
+        value={formData.clientFirstName}
+        onChange={handleChange}
+        className={inputStyle}
+        required
+      />
+    </div>
+    <div>
+      <label className={labelStyle}>Last Name</label>
+      <input
+        type="text"
+        name="clientLastName"
+        value={formData.clientLastName}
+        onChange={handleChange}
+        className={inputStyle}
+        required
+      />
+    </div>
+  </div>
+
+  {/* Contact fields */}
+  <div className="grid md:grid-cols-2 gap-4 mt-4">
+    <div>
+      <label className={labelStyle}>Email</label>
+      <input
+        type="email"
+        name="clientEmail"
+        value={formData.clientEmail}
+        onChange={handleChange}
+        className={inputStyle}
+        required
+      />
+    </div>
+    <div>
+      <label className={labelStyle}>Phone Number</label>
+      <input
+        type="tel"
+        name="clientPhone"
+        value={formData.clientPhone}
+        onChange={handleChange}
+        className={inputStyle}
+        required
+      />
+    </div>
+  </div>
+</div>
+
+
+        {/* Step 2 - Choose Your Service(s) */}
         <div>
           <label className={`${labelStyle} text-lg font-semibold`}>
-            1. Choose Your Service(s)
+            2. Choose Your Service(s)
           </label>
+          <p className="text-sm text-gray-500 mb-3">
+            Which of our services are you starting with?
+          </p>
+
           <div className="space-y-2">
             {["Virtual Assistance", "Back Office" , "Digital Marketing", "Customer Support", "Sales Support", "IT Services"].map(
               (service) => (
                 <div key={service} className="flex items-center">
                   <input
+                    id={`service-${service}`}
                     type="checkbox"
                     name="services"
                     value={service}
@@ -114,12 +188,16 @@ export default function Form() {
                     onChange={handleChange}
                     className={checkboxStyle}
                   />
-                  <label className="ml-2 text-gray-700">{service}</label>
+                  <label htmlFor={`service-${service}`} className="ml-2 text-gray-700">
+                    {service}
+                  </label>
                 </div>
               )
             )}
+
             <div className="flex items-center mt-2">
               <input
+                id="service-other"
                 type="checkbox"
                 name="services"
                 value="Other"
@@ -127,7 +205,9 @@ export default function Form() {
                 onChange={handleChange}
                 className={checkboxStyle}
               />
-              <label className="ml-2 text-gray-700">Other:</label>
+              <label htmlFor="service-other" className="ml-2 text-gray-700">
+                Other:
+              </label>
               <input
                 type="text"
                 name="serviceOther"
@@ -141,9 +221,11 @@ export default function Form() {
           </div>
         </div>
 
-        {/* Duration */}
+        {/* Step 3 - Duration */}
         <div>
-          <label className={labelStyle}>2. How long do you intend to use this service?</label>
+          <label className={labelStyle}>
+            3. How long do you intend to use this service?
+          </label>
           <select
             name="duration"
             value={formData.duration}
@@ -158,9 +240,9 @@ export default function Form() {
           </select>
         </div>
 
-        {/* VA Count */}
+        {/* Step 4 - VA Count */}
         <div>
-          <label className={labelStyle}>3. How many VA&apos;s do you need?</label>
+          <label className={labelStyle}>4. How many VA&apos;s do you need?</label>
           <input
             type="number"
             name="vaCount"
@@ -172,13 +254,14 @@ export default function Form() {
           />
         </div>
 
-        {/* Communication */}
+        {/* Step 5 - Communication */}
         <div>
-          <label className={labelStyle}>4. Preferred form of communication</label>
+          <label className={labelStyle}>5. Preferred form of communication</label>
           <div className="space-y-2">
             {["Email", "Phone", "WhatsApp", "Telegram (Preferred)"].map((method) => (
               <div key={method} className="flex items-center">
                 <input
+                  id={`comm-${method}`}
                   type="checkbox"
                   name="communication"
                   value={method}
@@ -186,11 +269,15 @@ export default function Form() {
                   onChange={handleChange}
                   className={checkboxStyle}
                 />
-                <label className="ml-2 text-gray-700">{method}</label>
+                <label htmlFor={`comm-${method}`} className="ml-2 text-gray-700">
+                  {method}
+                </label>
               </div>
             ))}
+
             <div className="flex items-center mt-2">
               <input
+                id="comm-other"
                 type="checkbox"
                 name="communication"
                 value="Other"
@@ -198,7 +285,9 @@ export default function Form() {
                 onChange={handleChange}
                 className={checkboxStyle}
               />
-              <label className="ml-2 text-gray-700">Other:</label>
+              <label htmlFor="comm-other" className="ml-2 text-gray-700">
+                Other:
+              </label>
               <input
                 type="text"
                 name="communicationOther"
@@ -212,10 +301,11 @@ export default function Form() {
           </div>
         </div>
 
-        {/* CRM */}
+        {/* Step 6 - CRM / Tools */}
         <div>
           <label className={labelStyle}>
-            5. Do you currently use a CRM? If yes, please list them. Other tools/software you use:
+            6. Do you currently use a CRM? If yes, please list them. Other
+            tools/software your VA will need access to:
           </label>
           <textarea
             name="crmTools"
@@ -227,9 +317,11 @@ export default function Form() {
           />
         </div>
 
-        {/* Update Frequency */}
+        {/* Step 7 - Update Frequency */}
         <div>
-          <label className={labelStyle}>6. How often would you like status updates?</label>
+          <label className={labelStyle}>
+            7. How often would you like status updates?
+          </label>
           <select
             name="updateFrequency"
             value={formData.updateFrequency}
@@ -243,10 +335,10 @@ export default function Form() {
           </select>
         </div>
 
-        {/* Working Style */}
+        {/* Step 8 - Working Style */}
         <div>
           <label className={labelStyle}>
-            7. Will the VA be working independently or closely with a team?
+            8. Will the VA be working independently or closely with a team?
           </label>
           <select
             name="workingStyle"
@@ -261,9 +353,11 @@ export default function Form() {
           </select>
         </div>
 
-        {/* Sensitive Data */}
+        {/* Step 9 - Sensitive Data */}
         <div>
-          <label className={labelStyle}>8. Will the VA be handling sensitive client data?</label>
+          <label className={labelStyle}>
+            9. Will the VA be handling sensitive client data?
+          </label>
           <select
             name="sensitiveData"
             value={formData.sensitiveData}
@@ -277,9 +371,11 @@ export default function Form() {
           </select>
         </div>
 
-        {/* Main Goal */}
+        {/* Step 10 - Main Goal */}
         <div>
-          <label className={labelStyle}>9. What is your main goal for hiring a VA?</label>
+          <label className={labelStyle}>
+            10. What is your main goal for hiring a VA?
+          </label>
           <textarea
             name="mainGoal"
             rows={3}
@@ -287,18 +383,6 @@ export default function Form() {
             onChange={handleChange}
             className={inputStyle}
             placeholder="Time savings, lead generation, customer service, etc."
-          />
-        </div>
-
-        {/* Metrics */}
-        <div>
-          <label className={labelStyle}>10. Any key performance metrics or deadlines?</label>
-          <textarea
-            name="metrics"
-            rows={3}
-            value={formData.metrics}
-            onChange={handleChange}
-            className={inputStyle}
           />
         </div>
 
